@@ -86,7 +86,7 @@ topic_an[, topic_label := NULL]
 topic_an_ans <- merge(topic_an, topic_metrics, by = "topic_id")
 
 ## calculate Share of Voice on all Topics
-topic_an_ans[, share_voice := round(segment_count/sum(segment_count), 4)]
+topic_an_ans[, share_voice := round(segment_count/sum(topic_metrics$segment_count), 4)]
 ## order with share voice and select top 5 descending
 setorder(topic_an_ans, -share_voice)
 ## select top 5
