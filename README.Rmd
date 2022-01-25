@@ -1,18 +1,50 @@
+---
+title: "Impact Intelligence Assessment"
+output: github_document
+---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE)
+
+
+```
+
+
+### Load R packages to use
+
+```{r}
 library(tidyverse)
 library(data.table)
 library(readxl)
 library(xlsx)
+library(knitr)
+```
+
+### Read data into R
+
+```{r}
 topic_an  <- read_excel("data/Impact Intelligence - Project Contractor Sample.xlsx", sheet = 4)
 topic_metrics  <- read_excel("data/Impact Intelligence - Project Contractor Sample.xlsx", sheet = 3)
 
+```
+
+### Save the names of the two sheets
+
+```{r}
+# convert to DT
 setDT(topic_an)
 
 nms_topic <- names(topic_an)
 nms_topic_metrics <- names(topic_metrics)
 
-# function to clean name so that it's easier to use for analysis
+```
 
+### Function to clean names
+- ie it removes white space and other characters to make it easier to use a programming language like R or python etc.
+
+```{r}
 nms_clean <- function(data_set){
   nms_old <- names(data_set)
   nms_new <- nms_old %>% tolower() 
@@ -25,11 +57,21 @@ nms_clean <- function(data_set){
   setnames(data_set, nms_old, nms_new)
   data_set
 }
-## Clean the names of the data set
+```
+
+### Clean names
+
+```{r}
 topic_an <- nms_clean(topic_an)
 topic_metrics <- nms_clean(topic_metrics)
 nms_topic_metrics_clean <- names(topic_metrics)
 
+```
+
+### Some other minor cleaning 
+
+
+```{r}
 ## filter out topics where they are irrelevant
 topic_an <- topic_an[!grepl("irrelevant", topic_name)]
 
@@ -37,15 +79,27 @@ topic_an <- topic_an[!grepl("irrelevant", topic_name)]
 topic_an[, topic_id := str_extract(topic_label, "^\\d{1,3}[^\\.]")]
 
 ## delete topic label so that you only have one topic label in the data
+
 topic_an[, topic_label := NULL]
 
+#merge the two data sets
 topic_an_ans <- merge(topic_an, topic_metrics, by = "topic_id")
 
+## calculate Share of Voice on all Topics
 topic_an_ans[, share_voice := round(segment_count/sum(segment_count), 4)]
-## order with share voice and select top 5
+## order with share voice and select top 5 descending
 setorder(topic_an_ans, -share_voice)
+## select top 5
 topic_an_ans <- topic_an_ans[1:5,]
 ## Rename to the original names
+
+head(topic_an_ans) %>%
+  kable()
+```
+
+### Rename back columns to original names
+
+```{r}
 nms_final_dt <- names(topic_an_ans)
 
 setnames(topic_an_ans,
@@ -63,15 +117,38 @@ setnames(topic_an_ans,
          nms_to_rnm, 
          nms_to_rnm_to, skip_absent = F)
 
+```
+
+
+### Select required columns 
+
+```{r}
 nms_required <- c("Topic Name", "Share of Voice on all Topics",
                   "Average Sentiment", "Average Engagement", "Keywords")
 
 output_df <- topic_an_ans[, ..nms_required]
 
-##make sure you delete the sheet name output first
+```
+
+### Delete output sheet
+- it will enable in writing to it
+ 
+```{r}
+wb_path <- "data/Impact Intelligence - Project Contractor Sample.xlsx"
+wb <- loadWorkbook(wb_path)
+removeSheet(wb, sheetName = "Output")
+saveWorkbook(wb, wb_path)
+```
+
+### Append the sheet to your excel workbook
+
+```{r}
 ## Then append the sheet to your excel workbook
 write.xlsx(as.data.frame(output_df), 
            file = "data/Impact Intelligence - Project Contractor Sample.xlsx", 
            sheetName="Output",
            append=TRUE,
            row.names = F)
+
+```
+
