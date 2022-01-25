@@ -1,0 +1,27 @@
+{
+    "id": "495DFDC2",
+    "path": "~/personal_projects/impact_intelligence/application.R",
+    "project_path": "application.R",
+    "type": "r_source",
+    "hash": "680955663",
+    "contents": "",
+    "dirty": false,
+    "created": 1643088243958.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "tempName": "Untitled1",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "38,66",
+        "scrollLine": "27"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1643101207,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1643101207359,
+    "read_only": false,
+    "read_only_alternatives": []
+}
